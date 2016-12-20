@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        revision="24.0.1"
+        sha1="8af7d2da52b992a23e03de5f6fe6d20fba7604d9">
+        <dex dex="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_28ed9a523264c3f1d6410954fac452a16dce6454/classes.dex" />
+    </item>
+    <item
+        jar="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        revision="24.0.1"
+        sha1="7309f4955533c8bbbf6b07a94f9de023703d4ad8">
+        <dex dex="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_a18483d45767b9c92f72941758a127129e9173af/classes.dex" />
+    </item>
+
+</items>

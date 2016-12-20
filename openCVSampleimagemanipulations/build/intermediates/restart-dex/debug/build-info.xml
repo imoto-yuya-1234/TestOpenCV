@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<instant-run
+    abi="arm64-v8a,armeabi-v7a,armeabi"
+    api-level="22"
+    density="xhdpi"
+    format="7"
+    timestamp="14750595248832"
+    token="3861481864299879078" >
+
+    <task
+        name="javac"
+        duration="194" />
+    <task
+        name="instant-run-dex"
+        duration="0" />
+    <task
+        name="instant-run-transform"
+        duration="498" />
+    <task
+        name="verifier"
+        duration="64" />
+
+    <artifact
+        location="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/outputs/apk/openCVSampleimagemanipulations-debug.apk"
+        type="MAIN" />
+
+    <build timestamp="14750595248832" >
+        <artifact
+            location="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/outputs/apk/openCVSampleimagemanipulations-debug.apk"
+            type="MAIN" />
+    </build>
+
+</instant-run>
