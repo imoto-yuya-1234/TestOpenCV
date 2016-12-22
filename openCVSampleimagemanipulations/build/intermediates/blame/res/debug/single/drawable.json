@@ -2,9 +2,5 @@
     {
         "merged": "/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/res/merged/debug/drawable/icon.png",
         "source": "/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/src/main/res/drawable/icon.png"
-    },
-    {
-        "merged": "/Users/yuya/work/AndroidStudioProjects/image-manipulations/openCVSampleimagemanipulations/build/intermediates/res/merged/debug/drawable/icon.png",
-        "source": "/Users/yuya/work/AndroidStudioProjects/image-manipulations/openCVSampleimagemanipulations/src/main/res/drawable/icon.png"
     }
 ]

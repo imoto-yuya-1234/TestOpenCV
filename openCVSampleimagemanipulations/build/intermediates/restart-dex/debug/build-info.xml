@@ -4,30 +4,35 @@
     api-level="22"
     density="xhdpi"
     format="7"
-    timestamp="14750595248832"
-    token="3861481864299879078" >
+    timestamp="36099606493461"
+    token="6711680202782785122" >
 
     <task
         name="javac"
-        duration="194" />
+        duration="195" />
     <task
         name="instant-run-dex"
         duration="0" />
     <task
         name="instant-run-transform"
-        duration="498" />
+        duration="28" />
     <task
         name="verifier"
-        duration="64" />
+        duration="2" />
 
     <artifact
-        location="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/outputs/apk/openCVSampleimagemanipulations-debug.apk"
-        type="MAIN" />
+        location="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/dex/debug/folders/1000/5/slice_3/classes.dex"
+        type="DEX" />
 
-    <build timestamp="14750595248832" >
+    <build timestamp="29801780488708" >
         <artifact
             location="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/outputs/apk/openCVSampleimagemanipulations-debug.apk"
             type="MAIN" />
+    </build>
+    <build timestamp="36099606493461" >
+        <artifact
+            location="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/dex/debug/folders/1000/5/slice_3/classes.dex"
+            type="DEX" />
     </build>
 
 </instant-run>

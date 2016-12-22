@@ -1,0 +1,2 @@
+CHANGED,/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/instantRun/debug/folders/4000/5/enhanced/org/opencv/samples/imagemanipulations/ImageManipulationsActivity$override.class
+CHANGED,/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/instantRun/debug/folders/4000/5/enhanced/com/android/tools/fd/runtime/AppPatchesLoaderImpl.class
