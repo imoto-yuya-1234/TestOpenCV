@@ -110,62 +110,38 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
         Mat InImage = inputFrame.rgba();
-        Mat GrayImage = inputFrame.gray();
-        Size FrameSize = GrayImage.size();
+        Size FrameSize = InImage.size();
         int height = (int) FrameSize.height;
         int width = (int) FrameSize.width;
 
-        Mat OutImage = new Mat();
-        Mat HsvImage = new Mat();
-        Mat HsvOutImage = new Mat();
-        Mat rgbaImage = new Mat();
-        Mat rgba2Image = new Mat();
-        Mat SmoothImage;
-        Mat CannyImage;
-        Mat Circles = new Mat();
+        Mat roi = new Mat();
+        //roi = InImage.submat(0, height, 0, width);
+        InImage.copyTo(roi);
+        Mat roiTmp = roi.clone();
+
+        Imgproc.cvtColor(roiTmp, roiTmp, Imgproc.COLOR_RGBA2BGR);
+        Imgproc.cvtColor(roiTmp, roiTmp, Imgproc.COLOR_BGR2HSV);
+        // extracts blue
+        Core.inRange(roiTmp, new Scalar(90, 70, 70), new Scalar(110, 255, 255), roiTmp);
+        Imgproc.cvtColor(roiTmp, roi, Imgproc.COLOR_GRAY2BGRA);
+
+        Mat CannyImage = new Mat();
+        Imgproc.Canny(roi, CannyImage, 80, 90);
+
         Mat Lines = new Mat();
-        SmoothImage = GrayImage.submat(0, height, 0, width);
-        CannyImage = GrayImage.submat(0, height, 0, width);
+        Imgproc.HoughLinesP(CannyImage, Lines, 1, Math.PI/180, 50, 100, 50);
+        fncDrwLines(Lines, InImage);
 
-        //Imgproc.GaussianBlur(GrayImage, SmoothImage, new Size(3,3), 2.0, 2.0);
-        //Imgproc.Canny(SmoothImage, CannyImage, 100, 150);
+        //Imgproc.rectangle(InImage, new Point(0, 0), new Point(width, height), new Scalar(0, 0, 255), -1);
 
-        Imgproc.cvtColor(InImage, HsvImage, Imgproc.COLOR_BGR2HSV, 3);
-        Core.inRange(HsvImage, new Scalar(90, 50, 50), new Scalar(125, 255, 255), HsvOutImage);
-        Imgproc.cvtColor(HsvOutImage, rgbaImage, Imgproc.COLOR_GRAY2BGR, 0);
-        Imgproc.cvtColor(rgbaImage, rgba2Image, Imgproc.COLOR_BGR2RGBA, 0);
-
-
-        //Imgproc.HoughLinesP(CannyImage, Lines, 1, Math.PI/180, 50, 100, 50);
-        //fncDrwLines(Lines, InImage);
-        //Imgproc.HoughCircles(CannyImage, Circles, Imgproc.CV_HOUGH_GRADIENT, 2, 50, 160, 100, 100, 200);
-        //fncDrwCircles(Circles, InImage);
-
-        //GrayImage.release();
-        //SmoothImage.release();
-
-        //Imgproc.rectangle(InImage, new Point(0, 0), new Point(width, height), new Scalar(0, 0, 255), 10);
-
-        return OutImage;
-    }
-
-    private void fncDrwCircles(Mat circles, Mat img) {
-        double[] data;
-        double rho;
-        Point pt = new Point();
-        for (int i = 0; i < circles.cols(); i++){
-            data = circles.get(0, i);
-            pt.x = data[0];
-            pt.y = data[1];
-            rho = data[2];
-            Imgproc.circle(img, pt, (int)rho, new Scalar(255, 0, 0), -1);
-        }
+        return InImage;
     }
 
     private void fncDrwLines(Mat lines, Mat img) {
         double[] data;
         Point pt1 = new Point();
         Point pt2 = new Point();
+        Log.d("houghlineC", "hough line count = "+lines.cols()+"");
         for (int i = 0; i < lines.cols(); i++){
             data = lines.get(0, i);
             pt1.x = data[0];
