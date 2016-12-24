@@ -115,29 +115,20 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         int height = (int) FrameSize.height;
         int width = (int) FrameSize.width;
 
-        Mat OutImage = new Mat();
-        Mat HsvImage = new Mat();
-        Mat HsvOutImage = new Mat();
-        Mat rgbaImage = new Mat();
-        Mat rgba2Image = new Mat();
         Mat SmoothImage;
         Mat CannyImage;
-        Mat Circles = new Mat();
         Mat Lines = new Mat();
         SmoothImage = GrayImage.submat(0, height, 0, width);
         CannyImage = GrayImage.submat(0, height, 0, width);
 
-        //Imgproc.GaussianBlur(GrayImage, SmoothImage, new Size(3,3), 2.0, 2.0);
-        //Imgproc.Canny(SmoothImage, CannyImage, 100, 150);
-
-        Imgproc.cvtColor(InImage, HsvImage, Imgproc.COLOR_BGR2HSV, 3);
-        Core.inRange(HsvImage, new Scalar(90, 50, 50), new Scalar(125, 255, 255), HsvOutImage);
-        Imgproc.cvtColor(HsvOutImage, rgbaImage, Imgproc.COLOR_GRAY2BGR, 0);
-        Imgproc.cvtColor(rgbaImage, rgba2Image, Imgproc.COLOR_BGR2RGBA, 0);
+        Imgproc.GaussianBlur(GrayImage, SmoothImage, new Size(3,3), 2.0, 2.0);
+        Imgproc.Canny(SmoothImage, CannyImage, 100, 150);
 
 
-        //Imgproc.HoughLinesP(CannyImage, Lines, 1, Math.PI/180, 50, 100, 50);
-        //fncDrwLines(Lines, InImage);
+        Imgproc.HoughLinesP(CannyImage, Lines, 1, Math.PI/180, 5, 10, 50);
+        fncDrwLines(Lines, InImage);
+
+        //Mat Circles = new Mat();
         //Imgproc.HoughCircles(CannyImage, Circles, Imgproc.CV_HOUGH_GRADIENT, 2, 50, 160, 100, 100, 200);
         //fncDrwCircles(Circles, InImage);
 
@@ -146,7 +137,7 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
 
         //Imgproc.rectangle(InImage, new Point(0, 0), new Point(width, height), new Scalar(0, 0, 255), 10);
 
-        return OutImage;
+        return InImage;
     }
 
     private void fncDrwCircles(Mat circles, Mat img) {
