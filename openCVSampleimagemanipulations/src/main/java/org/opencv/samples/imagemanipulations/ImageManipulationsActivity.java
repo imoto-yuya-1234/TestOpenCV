@@ -1,6 +1,8 @@
 package org.opencv.samples.imagemanipulations;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -11,6 +13,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfInt;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -109,30 +112,19 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
     }
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-        Mat InImage = inputFrame.rgba();
+        Mat InImage = inputFrame.gray();
         Size FrameSize = InImage.size();
         int height = (int) FrameSize.height;
         int width = (int) FrameSize.width;
 
-        Mat roi = new Mat();
-        //roi = InImage.submat(0, height, 0, width);
-        InImage.copyTo(roi);
-        Mat roiTmp = roi.clone();
+        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+        Mat hierarchy = Mat.zeros(new Size(5,5), CvType.CV_8UC1);
+        Imgproc.findContours(InImage, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_TC89_L1);
 
-        Imgproc.cvtColor(roiTmp, roiTmp, Imgproc.COLOR_RGBA2BGR);
-        Imgproc.cvtColor(roiTmp, roiTmp, Imgproc.COLOR_BGR2HSV);
-        // extracts blue
-        Core.inRange(roiTmp, new Scalar(90, 70, 70), new Scalar(110, 255, 255), roiTmp);
-        Imgproc.cvtColor(roiTmp, roi, Imgproc.COLOR_GRAY2BGRA);
+        Mat dst = Mat.zeros(FrameSize,CvType.CV_8UC3);
+        Scalar color=new Scalar(255,255,255);
 
-        Mat CannyImage = new Mat();
-        Imgproc.Canny(roi, CannyImage, 80, 90);
-
-        Mat Lines = new Mat();
-        Imgproc.HoughLinesP(CannyImage, Lines, 1, Math.PI/180, 50, 100, 50);
-        fncDrwLines(Lines, InImage);
-
-        //Imgproc.rectangle(InImage, new Point(0, 0), new Point(width, height), new Scalar(0, 0, 255), -1);
+        Imgproc.drawContours(InImage, contours, -1, color,1);
 
         return InImage;
     }
