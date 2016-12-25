@@ -14,6 +14,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -133,9 +134,9 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Mat hierarchy = new Mat();
         Imgproc.findContours(roiTmp, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_TC89_L1);
-
         //Imgproc.drawContours(roiTmp, contours, -1, new Scalar(255,255,255),1);
 
+        // search max bule area
         int index = -1;
         double contourArea = 0;
         for (int i = 0; i < contours.size(); i++) {
@@ -147,7 +148,18 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         }
 
         if(index != -1) {
-            Imgproc.drawContours(rgbaImage, contours, index, new Scalar(255,0,0),5);
+            //Imgproc.drawContours(rgbaImage, contours, index, new Scalar(255,0,0), 5);
+
+            MatOfPoint2f contours2f = new MatOfPoint2f( contours.get(index).toArray() );
+            MatOfPoint2f approx2f = new MatOfPoint2f();
+            Imgproc.approxPolyDP(contours2f, approx2f, 0.05 * Imgproc.arcLength(contours2f, true), true);
+
+
+            MatOfPoint approx = new MatOfPoint(approx2f.toArray());
+            List<MatOfPoint> approxs = new ArrayList<MatOfPoint>();
+            approxs.add(0, approx);
+            Imgproc.polylines(rgbaImage, approxs, true, new Scalar(0, 255, 0), 5);
+
         }
 
         //Imgproc.cvtColor(roiTmp, roiTmp, Imgproc.COLOR_GRAY2BGRA);
