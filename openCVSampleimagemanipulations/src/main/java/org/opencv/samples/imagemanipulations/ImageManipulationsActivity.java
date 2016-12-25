@@ -112,21 +112,47 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
     }
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-        Mat InImage = inputFrame.gray();
-        Size FrameSize = InImage.size();
+        Mat rgbaImage = inputFrame.rgba();
+        Mat grayImage = inputFrame.gray();
+        Size FrameSize = rgbaImage.size();
         int height = (int) FrameSize.height;
         int width = (int) FrameSize.width;
 
+        Mat roi = new Mat();
+        //roi = InImage.submat(0, height, 0, width);
+        rgbaImage.copyTo(roi);
+        Mat roiTmp = roi.clone();
+
+        Imgproc.cvtColor(roiTmp, roiTmp, Imgproc.COLOR_RGBA2BGR);
+        Imgproc.cvtColor(roiTmp, roiTmp, Imgproc.COLOR_BGR2HSV);
+        // extracts blue
+        Core.inRange(roiTmp, new Scalar(90, 70, 70), new Scalar(110, 255, 255), roiTmp);
+        //Imgproc.cvtColor(roiTmp, roi, Imgproc.COLOR_GRAY2BGRA);
+
+        //Imgproc.threshold(dst_bin,dst_bin, 100, 255, Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-        Mat hierarchy = Mat.zeros(new Size(5,5), CvType.CV_8UC1);
-        Imgproc.findContours(InImage, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_TC89_L1);
+        Mat hierarchy = new Mat();
+        Imgproc.findContours(roiTmp, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_TC89_L1);
 
-        Mat dst = Mat.zeros(FrameSize,CvType.CV_8UC3);
-        Scalar color=new Scalar(255,255,255);
+        //Imgproc.drawContours(roiTmp, contours, -1, new Scalar(255,255,255),1);
 
-        Imgproc.drawContours(InImage, contours, -1, color,1);
+        int index = -1;
+        double contourArea = 0;
+        for (int i = 0; i < contours.size(); i++) {
+            double tmpArea = Imgproc.contourArea(contours.get(i));
+            if(contourArea < tmpArea) {
+                contourArea = tmpArea;
+                index = i;
+            }
+        }
 
-        return InImage;
+        if(index != -1) {
+            Imgproc.drawContours(rgbaImage, contours, index, new Scalar(255,0,0),5);
+        }
+
+        //Imgproc.cvtColor(roiTmp, roiTmp, Imgproc.COLOR_GRAY2BGRA);
+
+        return rgbaImage;
     }
 
     private void fncDrwLines(Mat lines, Mat img) {
