@@ -121,20 +121,14 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
 
         Mat roi = new Mat();
         //roi = InImage.submat(0, height, 0, width);
-        rgbaImage.copyTo(roi);
+        grayImage.copyTo(roi);
         Mat roiTmp = roi.clone();
 
-        Imgproc.cvtColor(roiTmp, roiTmp, Imgproc.COLOR_RGBA2BGR);
-        Imgproc.cvtColor(roiTmp, roiTmp, Imgproc.COLOR_BGR2HSV);
-        // extracts blue
-        Core.inRange(roiTmp, new Scalar(90, 70, 70), new Scalar(110, 255, 255), roiTmp);
-        //Imgproc.cvtColor(roiTmp, roi, Imgproc.COLOR_GRAY2BGRA);
+        Imgproc.threshold(roiTmp, roiTmp, 0, 255, Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
 
-        //Imgproc.threshold(dst_bin,dst_bin, 100, 255, Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Mat hierarchy = new Mat();
         Imgproc.findContours(roiTmp, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_TC89_L1);
-        //Imgproc.drawContours(roiTmp, contours, -1, new Scalar(255,255,255),1);
 
         // search max bule area
         int index = -1;
@@ -148,21 +142,26 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         }
 
         if(index != -1) {
-            //Imgproc.drawContours(rgbaImage, contours, index, new Scalar(255,0,0), 5);
-
             MatOfPoint2f contours2f = new MatOfPoint2f( contours.get(index).toArray() );
             MatOfPoint2f approx2f = new MatOfPoint2f();
             Imgproc.approxPolyDP(contours2f, approx2f, 0.05 * Imgproc.arcLength(contours2f, true), true);
 
+            if (approx2f.height() == 4) {
 
-            MatOfPoint approx = new MatOfPoint(approx2f.toArray());
-            List<MatOfPoint> approxs = new ArrayList<MatOfPoint>();
-            approxs.add(0, approx);
-            Imgproc.polylines(rgbaImage, approxs, true, new Scalar(0, 255, 0), 5);
+                MatOfPoint approx = new MatOfPoint(approx2f.toArray());
+                List<MatOfPoint> approxs = new ArrayList<MatOfPoint>();
+                approxs.add(0, approx);
+                Imgproc.polylines(rgbaImage, approxs, true, new Scalar(0, 255, 0), 5);
 
+                Point vertex = new Point();
+                for (int k = 0; k < approx2f.height(); k++) {
+                    double[] m = approx2f.get(k, 0);
+                    vertex.x = m[0];
+                    vertex.y = m[1];
+                    Imgproc.circle(rgbaImage, vertex, 2, new Scalar(0, 0, 255), -1);
+                }
+            }
         }
-
-        //Imgproc.cvtColor(roiTmp, roiTmp, Imgproc.COLOR_GRAY2BGRA);
 
         return rgbaImage;
     }
