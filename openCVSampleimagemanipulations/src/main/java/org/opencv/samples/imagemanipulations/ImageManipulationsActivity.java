@@ -153,12 +153,24 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
                 approxs.add(0, approx);
                 Imgproc.polylines(rgbaImage, approxs, true, new Scalar(0, 255, 0), 5);
 
-                Point vertex = new Point();
+                Point[] vertex = new Point[4];
+                
                 for (int k = 0; k < approx2f.height(); k++) {
                     double[] m = approx2f.get(k, 0);
-                    vertex.x = m[0];
-                    vertex.y = m[1];
-                    Imgproc.circle(rgbaImage, vertex, 2, new Scalar(0, 0, 255), -1);
+                    vertex[k] = new Point();
+                    vertex[k].x = m[0];
+                    vertex[k].y = m[1];
+                    Scalar color;
+                    if (k == 0) {
+                        color = new Scalar(255, 0, 0);
+                    } else if (k == 1) {
+                        color = new Scalar(0, 255, 0);
+                    } else if (k == 2) {
+                        color = new Scalar(0, 0, 255);
+                    } else {
+                        color = new Scalar(255, 255, 0);
+                    }
+                    Imgproc.circle(rgbaImage, vertex[k], 2, color, -1);
                 }
             }
         }
