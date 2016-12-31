@@ -119,6 +119,9 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         int height = (int) FrameSize.height;
         int width = (int) FrameSize.width;
 
+        //Mat dstMat = new Mat(rgbaImage.rows(), rgbaImage.cols(), rgbaImage.type());
+        Mat dstMat = rgbaImage.clone();
+
         Mat roi = new Mat();
         //roi = InImage.submat(0, height, 0, width);
         grayImage.copyTo(roi);
@@ -146,20 +149,19 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
             MatOfPoint2f approx2f = new MatOfPoint2f();
             Imgproc.approxPolyDP(contours2f, approx2f, 0.05 * Imgproc.arcLength(contours2f, true), true);
 
-            if (approx2f.height() == 4) {
+            MatOfPoint approx = new MatOfPoint(approx2f.toArray());
+            MatOfInt hull = new MatOfInt();
+            Imgproc.convexHull(approx, hull);
 
-                MatOfPoint approx = new MatOfPoint(approx2f.toArray());
-                List<MatOfPoint> approxs = new ArrayList<MatOfPoint>();
-                approxs.add(0, approx);
-                Imgproc.polylines(rgbaImage, approxs, true, new Scalar(0, 255, 0), 5);
+            if (hull.size().height == 4) {
+                float srcPoint[] = new float[]{0, 0, 0, height, width, height, width, 0};
 
-                Point[] vertex = new Point[4];
-                
-                for (int k = 0; k < approx2f.height(); k++) {
-                    double[] m = approx2f.get(k, 0);
-                    vertex[k] = new Point();
-                    vertex[k].x = m[0];
-                    vertex[k].y = m[1];
+                for (int k = 0; k < hull.size().height; k++) {
+                    int hullIndex = (int)hull.get(k, 0)[0];
+                    Log.d("hull index", ""+hullIndex+"");
+                    double[] m = approx.get(hullIndex, 0);
+                    srcPoint[2*k] = (float)m[0];
+                    srcPoint[2*k + 1] = (float)m[1];
                     Scalar color;
                     if (k == 0) {
                         color = new Scalar(255, 0, 0);
@@ -170,12 +172,34 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
                     } else {
                         color = new Scalar(255, 255, 0);
                     }
-                    Imgproc.circle(rgbaImage, vertex[k], 2, color, -1);
+                    Imgproc.circle(dstMat, new Point(srcPoint[2*k], srcPoint[2*k + 1]), 10, color, -1);
                 }
             }
         }
+        return dstMat;
+    }
 
-        return rgbaImage;
+    private Mat CorrectImage(Mat inImage, float srcPoint[]) {
+        int width = inImage.width();
+        int height = inImage.height();
+
+        //float srcPoint[] = new float[]{width, height, width, 0, 0, 0, 0, height};
+        Mat srcPointMat = new Mat(4,2,CvType.CV_32F);
+        srcPointMat.put(0, 0, srcPoint);
+
+        float xMargin = width / 8;
+        float yMargin = height / 8;
+        float dstPoint[] = new float[]{width - xMargin, height - yMargin, width - xMargin, yMargin, xMargin, yMargin, xMargin, height - yMargin};
+        Mat dstPointMat = new Mat(4,2,CvType.CV_32F);
+        dstPointMat.put(0, 0,dstPoint );
+
+        //変換行列作成
+        Mat r_mat = Imgproc.getPerspectiveTransform(srcPointMat, dstPointMat);
+        //図形変換処理
+        Mat outImage = new Mat(inImage.rows(), inImage.cols(), inImage.type());
+        Imgproc.warpPerspective(inImage, outImage, r_mat, outImage.size(),Imgproc.INTER_LINEAR);
+
+        return outImage;
     }
 
     private void fncDrwLines(Mat lines, Mat img) {
@@ -192,5 +216,16 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
             Imgproc.line(img, pt1, pt2, new Scalar(255, 0, 0), 5);
         }
     }
-
+    private void fncDrwCircles(Mat circles, Mat img) {
+        double[] data;
+        double rho;
+        Point pt = new Point();
+        for (int i = 0; i < circles.cols(); i++){
+            data = circles.get(0, i);
+            pt.x = data[0];
+            pt.y = data[1];
+            rho = data[2];
+            Imgproc.circle(img, pt, (int)rho, new Scalar(255, 0, 0), -1);
+            }
+        }
 }
