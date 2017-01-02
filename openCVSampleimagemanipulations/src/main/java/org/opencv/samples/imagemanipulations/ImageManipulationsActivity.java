@@ -149,30 +149,45 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
             MatOfPoint2f approx2f = new MatOfPoint2f();
             Imgproc.approxPolyDP(contours2f, approx2f, 0.05 * Imgproc.arcLength(contours2f, true), true);
 
-            MatOfPoint approx = new MatOfPoint(approx2f.toArray());
-            MatOfInt hull = new MatOfInt();
-            Imgproc.convexHull(approx, hull);
+            if (approx2f.height() == 4) {
+                boolean pointOK[] = new boolean[]{false, false, false, false};
+                float srcPoint[] = new float[]{0, 0, width, 0, width, height, 0, height};
 
-            if (hull.size().height == 4) {
-                float srcPoint[] = new float[]{0, 0, 0, height, width, height, width, 0};
-
-                for (int k = 0; k < hull.size().height; k++) {
-                    int hullIndex = (int)hull.get(k, 0)[0];
-                    Log.d("hull index", ""+hullIndex+"");
-                    double[] m = approx.get(hullIndex, 0);
-                    srcPoint[2*k] = (float)m[0];
-                    srcPoint[2*k + 1] = (float)m[1];
-                    Scalar color;
-                    if (k == 0) {
-                        color = new Scalar(255, 0, 0);
-                    } else if (k == 1) {
-                        color = new Scalar(0, 255, 0);
-                    } else if (k == 2) {
-                        color = new Scalar(0, 0, 255);
-                    } else {
-                        color = new Scalar(255, 255, 0);
+                for (int k = 0; k < approx2f.height(); k++) {
+                    double[] m = approx2f.get(k, 0);
+                    float pointX = (float)m[0];
+                    float pointY = (float)m[1];
+                    int l = 0;
+                    if (pointX < width / 2 && pointY < height / 2) {
+                        l = 0;
+                    } else if (pointX > width / 2 && pointY < height / 2) {
+                        l = 1;
+                    } else if (pointX > width / 2 && pointY > height / 2) {
+                        l = 2;
+                    } else if (pointX < width / 2 && pointY > height / 2) {
+                        l = 3;
                     }
-                    Imgproc.circle(dstMat, new Point(srcPoint[2*k], srcPoint[2*k + 1]), 10, color, -1);
+                    pointOK[l] = true;
+                    srcPoint[2*l] = pointX;
+                    srcPoint[2*l + 1] = pointY;
+                }
+
+                if (pointOK[0] && pointOK[1] && pointOK[2] && pointOK[3]) {
+                    for (int l = 0; l < approx2f.height(); l++) {
+                        Scalar color;
+                        if (l == 0) {
+                            color = new Scalar(255, 0, 0);
+                        } else if (l == 1) {
+                            color = new Scalar(0, 255, 0);
+                        } else if (l == 2) {
+                            color = new Scalar(0, 0, 255);
+                        } else {
+                            color = new Scalar(255, 255, 0);
+                        }
+                        Imgproc.circle(dstMat, new Point(srcPoint[2*l], srcPoint[2*l + 1]), 10, color, -1);
+                    }
+
+                    dstMat = CorrectImage(dstMat, srcPoint);
                 }
             }
         }
@@ -183,13 +198,13 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         int width = inImage.width();
         int height = inImage.height();
 
-        //float srcPoint[] = new float[]{width, height, width, 0, 0, 0, 0, height};
+        //float srcPoint[] = new float[]{0, 0, width, 0, width, height, 0, height};
         Mat srcPointMat = new Mat(4,2,CvType.CV_32F);
         srcPointMat.put(0, 0, srcPoint);
 
         float xMargin = width / 8;
         float yMargin = height / 8;
-        float dstPoint[] = new float[]{width - xMargin, height - yMargin, width - xMargin, yMargin, xMargin, yMargin, xMargin, height - yMargin};
+        float dstPoint[] = new float[]{xMargin, yMargin, width - xMargin, yMargin, width - xMargin, height - yMargin, xMargin, height - yMargin};
         Mat dstPointMat = new Mat(4,2,CvType.CV_32F);
         dstPointMat.put(0, 0,dstPoint );
 
