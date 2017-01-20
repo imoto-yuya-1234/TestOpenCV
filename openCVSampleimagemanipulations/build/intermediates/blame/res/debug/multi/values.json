@@ -1,14 +1,14 @@
 [
     {
-        "outputFile": "/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/res/merged/debug/values/values.xml",
+        "outputFile": "/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
         "map": [
             {
                 "to": {
-                    "startLine": 3,
+                    "startLine": 7,
                     "startColumn": 4,
-                    "startOffset": 304,
+                    "startOffset": 345,
                     "endColumn": 60,
-                    "endOffset": 360
+                    "endOffset": 401
                 },
                 "from": {
                     "file": "/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/src/main/res/values/strings.xml",

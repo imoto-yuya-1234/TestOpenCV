@@ -23,20 +23,22 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.graphics.Paint;
+import android.widget.RelativeLayout;
 
 public class ImageManipulationsActivity extends Activity implements CvCameraViewListener2 {
     private static final String  TAG                 = "OCVSample::Activity";
 
     private CameraBridgeViewBase mOpenCvCameraView;
-
-    private Mat                  mIntermediateMat;
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -71,6 +73,75 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.image_manipulations_activity_surface_view);
         mOpenCvCameraView.setVisibility(CameraBridgeViewBase.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
+
+        OverLayView overlay = new OverLayView(this);
+        addContentView(overlay, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+    }
+
+    public class OverLayView extends View {
+        int width;
+        int height;
+        public OverLayView(Context context) {
+            super(context);
+
+            setDrawingCacheEnabled(true);
+            setFocusable(true);
+        }
+
+        protected void onSizeChanged(int w, int h, int oldw, int oldh){
+            //ビューのサイズを取得
+            width= w;
+            height= h;
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+            canvas.drawColor(Color.TRANSPARENT);
+
+            Paint paint = new Paint();
+            paint.setColor(Color.argb(255, 255, 255, 255));
+
+            // x=40, y=40 半径 20 の円を描画
+            paint.setAntiAlias(false);
+            canvas.drawCircle(40.5f, 40.5f, 20.0f, paint);
+
+            // アンチエイリアスの円を描画
+            paint.setAntiAlias(true);
+            canvas.drawCircle(70, 70, 20.0f, paint);
+
+            // 塗りつぶし無しの円を描画
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(5);
+            canvas.drawCircle(100, 100, 10.0f, paint);
+        }
+    }
+
+    static public class DrawTest extends View {
+
+        public DrawTest(Context context) {
+            super(context);
+        }
+
+        // 描画処理を記述
+        @Override
+        protected void onDraw(Canvas canvas) {
+            Paint paint = new Paint();
+            paint.setColor(Color.argb(255, 255, 255, 255));
+
+            // x=40, y=40 半径 20 の円を描画
+            paint.setAntiAlias(false);
+            canvas.drawCircle(40.5f, 40.5f, 20.0f, paint);
+
+            // アンチエイリアスの円を描画
+            paint.setAntiAlias(true);
+            canvas.drawCircle(70, 70, 20.0f, paint);
+
+            // 塗りつぶし無しの円を描画
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(5);
+            canvas.drawCircle(100, 100, 10.0f, paint);
+        }
     }
 
     @Override
@@ -100,38 +171,32 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
             mOpenCvCameraView.disableView();
     }
 
-    public void onCameraViewStarted(int width, int height) {
-        mIntermediateMat = new Mat();
-    }
+    public void onCameraViewStarted(int width, int height) {}
 
-    public void onCameraViewStopped() {
-        // Explicitly deallocate Mats
-        if (mIntermediateMat != null)
-            mIntermediateMat.release();
-
-        mIntermediateMat = null;
-    }
+    public void onCameraViewStopped() {}
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-        Mat rgbaImage = inputFrame.rgba();
-        Mat grayImage = inputFrame.gray();
-        Size FrameSize = rgbaImage.size();
-        int height = (int) FrameSize.height;
-        int width = (int) FrameSize.width;
+        Mat rgbaMat = inputFrame.rgba();
+        Mat grayMat = inputFrame.gray();
 
-        //Mat dstMat = new Mat(rgbaImage.rows(), rgbaImage.cols(), rgbaImage.type());
-        Mat dstMat = rgbaImage.clone();
+        Square2Rect(grayMat, rgbaMat);
+        grayMat.release();
 
-        Mat roi = new Mat();
-        //roi = InImage.submat(0, height, 0, width);
-        grayImage.copyTo(roi);
-        Mat roiTmp = roi.clone();
+        return rgbaMat;
+    }
 
-        Imgproc.threshold(roiTmp, roiTmp, 0, 255, Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
+    private void Square2Rect(Mat inMat, Mat outMat) {
+        Mat corMat = inMat.clone();
+        int width = corMat.width();
+        int height = corMat.height();
+
+        Imgproc.threshold(corMat, corMat, 0, 255, Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
 
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Mat hierarchy = new Mat();
-        Imgproc.findContours(roiTmp, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_TC89_L1);
+        Imgproc.findContours(corMat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_TC89_L1);
+
+        corMat.release();
 
         // search max bule area
         int index = -1;
@@ -173,55 +238,33 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
                 }
 
                 if (pointOK[0] && pointOK[1] && pointOK[2] && pointOK[3]) {
-                    for (int l = 0; l < approx2f.height(); l++) {
-                        Scalar color;
-                        if (l == 0) {
-                            color = new Scalar(255, 0, 0);
-                        } else if (l == 1) {
-                            color = new Scalar(0, 255, 0);
-                        } else if (l == 2) {
-                            color = new Scalar(0, 0, 255);
-                        } else {
-                            color = new Scalar(255, 255, 0);
-                        }
-                        Imgproc.circle(dstMat, new Point(srcPoint[2*l], srcPoint[2*l + 1]), 10, color, -1);
-                    }
-
-                    dstMat = CorrectImage(dstMat, srcPoint);
+                    float xMargin = width / 8;
+                    float yMargin = height / 8;
+                    float dstPoint[] = new float[]{xMargin, yMargin, width - xMargin, yMargin, width - xMargin, height - yMargin, xMargin, height - yMargin};
+                    matPerspectiveTransform(outMat, outMat, srcPoint, dstPoint);
                 }
             }
         }
-        return dstMat;
     }
 
-    private Mat CorrectImage(Mat inImage, float srcPoint[]) {
-        int width = inImage.width();
-        int height = inImage.height();
-
-        //float srcPoint[] = new float[]{0, 0, width, 0, width, height, 0, height};
+    private void matPerspectiveTransform(Mat inMat, Mat outMat, float srcPoint[], float dstPoint[]) {
         Mat srcPointMat = new Mat(4,2,CvType.CV_32F);
         srcPointMat.put(0, 0, srcPoint);
 
-        float xMargin = width / 8;
-        float yMargin = height / 8;
-        float dstPoint[] = new float[]{xMargin, yMargin, width - xMargin, yMargin, width - xMargin, height - yMargin, xMargin, height - yMargin};
         Mat dstPointMat = new Mat(4,2,CvType.CV_32F);
-        dstPointMat.put(0, 0,dstPoint );
+        dstPointMat.put(0, 0, dstPoint);
 
         //変換行列作成
         Mat r_mat = Imgproc.getPerspectiveTransform(srcPointMat, dstPointMat);
-        //図形変換処理
-        Mat outImage = new Mat(inImage.rows(), inImage.cols(), inImage.type());
-        Imgproc.warpPerspective(inImage, outImage, r_mat, outImage.size(),Imgproc.INTER_LINEAR);
 
-        return outImage;
+        //図形変換処理
+        Imgproc.warpPerspective(inMat, outMat, r_mat, outMat.size(),Imgproc.INTER_LINEAR);
     }
 
-    private void fncDrwLines(Mat lines, Mat img) {
+    private void DrwLines(Mat lines, Mat img) {
         double[] data;
         Point pt1 = new Point();
         Point pt2 = new Point();
-        Log.d("houghlineC", "hough line count = "+lines.cols()+"");
         for (int i = 0; i < lines.cols(); i++){
             data = lines.get(0, i);
             pt1.x = data[0];
@@ -231,7 +274,7 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
             Imgproc.line(img, pt1, pt2, new Scalar(255, 0, 0), 5);
         }
     }
-    private void fncDrwCircles(Mat circles, Mat img) {
+    private void DrwCircles(Mat circles, Mat img) {
         double[] data;
         double rho;
         Point pt = new Point();

@@ -1,0 +1,7 @@
+#Sat Jan 21 00:17:58 JST 2017
+base.0=/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_a18483d45767b9c92f72941758a127129e9173af
+renamed.1=classes2.dex
+renamed.0=classes.dex
+file.1=/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_28ed9a523264c3f1d6410954fac452a16dce6454/classes.dex
+base.1=/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_28ed9a523264c3f1d6410954fac452a16dce6454
+file.0=/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_a18483d45767b9c92f72941758a127129e9173af/classes.dex
