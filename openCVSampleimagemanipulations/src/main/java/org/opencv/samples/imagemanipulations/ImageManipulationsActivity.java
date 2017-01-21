@@ -27,7 +27,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,6 +63,14 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         Log.i(TAG, "Instantiated new " + this.getClass());
     }
 
+
+    Ball ball;
+    Handler handler;
+    int width, height;
+    int dx = 10, dy = 10, time = 100;
+    private Ball overlay;
+    private Runnable runnable;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,13 +84,53 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         mOpenCvCameraView.setVisibility(CameraBridgeViewBase.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
 
-        OverLayView overlay = new OverLayView(this);
-        addContentView(overlay, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+        handler = new Handler();
+        handler.postDelayed(runnable, time);
+
+        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        Display display = windowManager.getDefaultDisplay();
+        android.graphics.Point point = new android.graphics.Point();
+        display.getSize(point);
+        width = point.x; //画面の幅
+        height = point.y; //画面の高さ
+        ball = new Ball(this);
+        ball.x = width / 2; //ここで
+        ball.y = height / 2; //ボールの位置を指定
+
+        //overlay = new Ball(this);
+        addContentView(ball, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                ball.x += dx;
+                ball.y -= dy;
+
+                if (ball.x <= ball.radius) {
+                    ball.x = ball.radius;
+                    dx = -dx;
+                } else if (ball.x >= width - ball.radius) {
+                    ball.x = width - ball.radius;
+                    dx = -dx;
+                }
+
+                if (ball.y <= ball.radius) {
+                    ball.y = ball.radius;
+                    dy = -dy;
+                } else if (ball.y >= height - ball.radius) {
+                    ball.y = height - ball.radius;
+                    dy = -dy;
+                }
+
+                ball.invalidate();
+                handler.postDelayed(runnable, time);
+            }
+        };
+        handler.postDelayed(runnable, time);
     }
 
     public class OverLayView extends View {
-        int width;
-        int height;
+
         public OverLayView(Context context) {
             super(context);
 
@@ -88,44 +138,11 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
             setFocusable(true);
         }
 
-        protected void onSizeChanged(int w, int h, int oldw, int oldh){
-            //ビューのサイズを取得
-            width= w;
-            height= h;
-        }
-
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
             canvas.drawColor(Color.TRANSPARENT);
 
-            Paint paint = new Paint();
-            paint.setColor(Color.argb(255, 255, 255, 255));
-
-            // x=40, y=40 半径 20 の円を描画
-            paint.setAntiAlias(false);
-            canvas.drawCircle(40.5f, 40.5f, 20.0f, paint);
-
-            // アンチエイリアスの円を描画
-            paint.setAntiAlias(true);
-            canvas.drawCircle(70, 70, 20.0f, paint);
-
-            // 塗りつぶし無しの円を描画
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(5);
-            canvas.drawCircle(100, 100, 10.0f, paint);
-        }
-    }
-
-    static public class DrawTest extends View {
-
-        public DrawTest(Context context) {
-            super(context);
-        }
-
-        // 描画処理を記述
-        @Override
-        protected void onDraw(Canvas canvas) {
             Paint paint = new Paint();
             paint.setColor(Color.argb(255, 255, 255, 255));
 

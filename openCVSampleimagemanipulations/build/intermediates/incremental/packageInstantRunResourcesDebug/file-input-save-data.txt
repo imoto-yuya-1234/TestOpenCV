@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Sat Jan 21 00:17:32 JST 2017
+#Sat Jan 21 10:31:45 JST 2017
 1.base=/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/res/resources-debug.ap_
 1.file=/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/res/resources-debug.ap_/res/layout/image_manipulations_surface_view.xml
 2.base=/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/res/resources-debug.ap_

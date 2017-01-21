@@ -56,13 +56,13 @@ ADDED from /Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagema
 	android:anyDensity
 		ADDED from /Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/src/main/AndroidManifest.xml:27:23-48
 uses-sdk
-ADDED from /Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/src/main/AndroidManifest.xml:29:5-43
+ADDED from /Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/src/main/AndroidManifest.xml:29:5-44
 MERGED from [TestOpenCV:openCVLibrary310:unspecified] /Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/exploded-aar/TestOpenCV/openCVLibrary310/unspecified/AndroidManifest.xml:7:5-9:41
 	android:targetSdkVersion
 		INJECTED from /Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/src/main/AndroidManifest.xml
 		INJECTED from /Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/src/main/AndroidManifest.xml
 	android:minSdkVersion
-		ADDED from /Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/src/main/AndroidManifest.xml:29:15-40
+		ADDED from /Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/src/main/AndroidManifest.xml:29:15-41
 		INJECTED from /Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/src/main/AndroidManifest.xml
 		INJECTED from /Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/src/main/AndroidManifest.xml
 uses-permission#android.permission.CAMERA
