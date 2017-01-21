@@ -68,7 +68,6 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
     Handler handler;
     int width, height;
     int dx = 10, dy = 10, time = 100;
-    private Ball overlay;
     private Runnable runnable;
 
     /** Called when the activity is first created. */
@@ -84,9 +83,7 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         mOpenCvCameraView.setVisibility(CameraBridgeViewBase.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
 
-        handler = new Handler();
-        handler.postDelayed(runnable, time);
-
+        // ボールの描画
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
         android.graphics.Point point = new android.graphics.Point();
@@ -96,9 +93,7 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         ball = new Ball(this);
         ball.x = width / 2; //ここで
         ball.y = height / 2; //ボールの位置を指定
-
-        //overlay = new Ball(this);
-        addContentView(ball, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+        handler = new Handler();
 
         runnable = new Runnable() {
             @Override
@@ -122,43 +117,14 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
                     dy = -dy;
                 }
 
+                // Viewの再描画
                 ball.invalidate();
                 handler.postDelayed(runnable, time);
             }
         };
         handler.postDelayed(runnable, time);
-    }
 
-    public class OverLayView extends View {
-
-        public OverLayView(Context context) {
-            super(context);
-
-            setDrawingCacheEnabled(true);
-            setFocusable(true);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            super.onDraw(canvas);
-            canvas.drawColor(Color.TRANSPARENT);
-
-            Paint paint = new Paint();
-            paint.setColor(Color.argb(255, 255, 255, 255));
-
-            // x=40, y=40 半径 20 の円を描画
-            paint.setAntiAlias(false);
-            canvas.drawCircle(40.5f, 40.5f, 20.0f, paint);
-
-            // アンチエイリアスの円を描画
-            paint.setAntiAlias(true);
-            canvas.drawCircle(70, 70, 20.0f, paint);
-
-            // 塗りつぶし無しの円を描画
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(5);
-            canvas.drawCircle(100, 100, 10.0f, paint);
-        }
+        addContentView(ball, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
     }
 
     @Override
