@@ -5,36 +5,36 @@
     density="xhdpi"
     format="8"
     plugin-version="2.2.3"
-    timestamp="72751099054688"
+    timestamp="85948414278461"
     token="6711680202782785122"
     verifier="COLD_SWAP_REQUESTED" >
 
     <task
         name="javac"
-        duration="243" />
+        duration="282" />
     <task
         name="instant-run-dex"
         duration="0" />
     <task
         name="instant-run-transform"
-        duration="74" />
+        duration="64" />
     <task
         name="verifier"
-        duration="2" />
+        duration="0" />
 
     <artifact
         location="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/dex/debug/folders/1000/5/slice_3/classes.dex"
         type="DEX" />
 
     <build
-        timestamp="71438511550538"
+        timestamp="83636048001217"
         verifier="FULL_BUILD_REQUESTED" >
         <artifact
             location="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/outputs/apk/openCVSampleimagemanipulations-debug.apk"
             type="MAIN" />
     </build>
     <build
-        timestamp="72751099054688"
+        timestamp="85948414278461"
         verifier="COLD_SWAP_REQUESTED" >
         <artifact
             location="/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/dex/debug/folders/1000/5/slice_3/classes.dex"

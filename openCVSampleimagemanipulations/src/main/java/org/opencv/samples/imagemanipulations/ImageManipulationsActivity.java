@@ -25,7 +25,9 @@ import org.opencv.imgproc.Imgproc;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -36,6 +38,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.graphics.Paint;
 import android.widget.RelativeLayout;
+
+import static android.R.attr.x;
 
 public class ImageManipulationsActivity extends Activity implements CvCameraViewListener2 {
     private static final String  TAG                 = "OCVSample::Activity";
@@ -62,7 +66,6 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
     public ImageManipulationsActivity() {
         Log.i(TAG, "Instantiated new " + this.getClass());
     }
-
 
     Ball ball;
     Handler handler;
@@ -117,7 +120,34 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
                     dy = -dy;
                 }
 
-                // Viewの再描画
+
+                //Rect ballRect = new Rect(ball.x - ball.radius, ball.y + ball.radius, ball.x + ball.radius, ball.y - ball.radius);
+                //canvas.drawRect(ballRect, ball.paint);
+
+                double cos;
+                for (int i = 0; i < rectPoint.size(); i++) {
+                    for (int j = 0; j < 4; j++) {
+                        int sub_x1, sub_y1, sub_x2, sub_y2;
+                        if (j != 3) {
+                            sub_x1 = 2*j;
+                            sub_y1 = 2*j + 1;
+                            sub_x2 = 2*j + 2;
+                            sub_y2 = 2*j + 3;
+                        } else {
+                            sub_x1 = 2*j;
+                            sub_y1 = 2*j + 1;
+                            sub_x2 = 0;
+                            sub_y2 = 1;
+                        }
+                        cos = CosOfPoints(ball.x, ball.y, rectPoint.get(i).get(sub_x1), rectPoint.get(i).get(sub_y1), rectPoint.get(i).get(sub_x2), rectPoint.get(i).get(sub_y2));
+                        if (cos >= 1.0) {
+                            ball.x = 0;
+                            ball.y = 0;
+                        }
+                    }
+                }
+
+                // ballの再描画
                 ball.invalidate();
                 handler.postDelayed(runnable, time);
             }
@@ -125,6 +155,11 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         handler.postDelayed(runnable, time);
 
         addContentView(ball, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+    }
+
+    public double CosOfPoints(int X, int Y, int x1, int y1, int x2, int y2) {
+        double cos = (x1 - X) * (x2 - X) + (y1 - Y) * (y2 - Y) / Math.sqrt((Math.pow(x1 - X, 2) + Math.pow(y1 - Y, 2))*(Math.pow(x2 - X, 2) + Math.pow(y2 - Y, 2)));
+        return cos;
     }
 
     @Override
@@ -162,10 +197,63 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         Mat rgbaMat = inputFrame.rgba();
         Mat grayMat = inputFrame.gray();
 
-        Square2Rect(grayMat, rgbaMat);
+        //Square2Rect(grayMat, rgbaMat);
+        SearchRect(grayMat, rgbaMat);
         grayMat.release();
 
         return rgbaMat;
+    }
+
+    ArrayList<ArrayList<Integer>> rectPoint;
+
+    private void SearchRect(Mat inMat, Mat outMat) {
+        Mat corMat = inMat.clone();
+
+        Imgproc.threshold(corMat, corMat, 0, 255, Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
+
+        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+        Mat hierarchy = new Mat();
+        Imgproc.findContours(corMat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_TC89_L1);
+
+        corMat.release();
+
+        rectPoint = new ArrayList<ArrayList<Integer>>();
+        for (int i = 0; i < contours.size(); i++) {
+
+            double contourArea = Imgproc.contourArea(contours.get(i));
+            if (contourArea > 2000 && contourArea < 150000) {
+                MatOfPoint2f contours2f = new MatOfPoint2f(contours.get(i).toArray());
+                MatOfPoint2f approx2f = new MatOfPoint2f();
+                Imgproc.approxPolyDP(contours2f, approx2f, 0.05 * Imgproc.arcLength(contours2f, true), true);
+
+                //凸包の取得
+                MatOfPoint approx = new MatOfPoint(approx2f.toArray());
+                MatOfInt hull = new MatOfInt();
+                Imgproc.convexHull(approx, hull);
+
+                if (hull.size().height == 4) {
+                    ArrayList<Integer> srcPoint = new ArrayList<Integer>();
+                    for (int k = 0; k < hull.size().height; k++) {
+                        int hullIndex = (int)hull.get(k, 0)[0];
+                        double[] m = approx.get(hullIndex, 0);
+                        srcPoint.add((int)m[0]);
+                        srcPoint.add((int)m[1]);
+                    }
+                    rectPoint.add(srcPoint);
+                }
+            }
+        }
+
+        for (int i = 0; i < rectPoint.size(); i++) {
+            Point pt1 = new Point(rectPoint.get(i).get(0), rectPoint.get(i).get(1));
+            Point pt2 = new Point(rectPoint.get(i).get(2), rectPoint.get(i).get(3));
+            Point pt3 = new Point(rectPoint.get(i).get(4), rectPoint.get(i).get(5));
+            Point pt4 = new Point(rectPoint.get(i).get(6), rectPoint.get(i).get(7));
+            Imgproc.line(outMat, pt1, pt2, new Scalar(255, 0, 0), 2);
+            Imgproc.line(outMat, pt2, pt3, new Scalar(255, 0, 0), 2);
+            Imgproc.line(outMat, pt3, pt4, new Scalar(255, 0, 0), 2);
+            Imgproc.line(outMat, pt4, pt1, new Scalar(255, 0, 0), 2);
+        }
     }
 
     private void Square2Rect(Mat inMat, Mat outMat) {
@@ -257,6 +345,7 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
             Imgproc.line(img, pt1, pt2, new Scalar(255, 0, 0), 5);
         }
     }
+
     private void DrwCircles(Mat circles, Mat img) {
         double[] data;
         double rho;
