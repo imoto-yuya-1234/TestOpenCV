@@ -124,8 +124,8 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
                 //Rect ballRect = new Rect(ball.x - ball.radius, ball.y + ball.radius, ball.x + ball.radius, ball.y - ball.radius);
                 //canvas.drawRect(ballRect, ball.paint);
 
-                double cos;
-                for (int i = 0; i < rectPoint.size(); i++) {
+                double angle = 0.0;
+                for (int i = 0; i < conerPoint.size(); i++) {
                     for (int j = 0; j < 4; j++) {
                         int sub_x1, sub_y1, sub_x2, sub_y2;
                         if (j != 3) {
@@ -139,11 +139,12 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
                             sub_x2 = 0;
                             sub_y2 = 1;
                         }
-                        cos = CosOfPoints(ball.x, ball.y, rectPoint.get(i).get(sub_x1), rectPoint.get(i).get(sub_y1), rectPoint.get(i).get(sub_x2), rectPoint.get(i).get(sub_y2));
-                        if (cos >= 1.0) {
-                            ball.x = 0;
-                            ball.y = 0;
-                        }
+                        angle = angle + AngleOfPoints(ball.x, ball.y, conerPoint.get(i).get(sub_x1), conerPoint.get(i).get(sub_y1), conerPoint.get(i).get(sub_x2), conerPoint.get(i).get(sub_y2));
+                    }
+                    Log.d("angle", ""+angle+"");
+                    if (angle >= 350) {
+                        ball.x = 0;
+                        ball.y = 0;
                     }
                 }
 
@@ -157,22 +158,21 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         addContentView(ball, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
     }
 
-    public double CosOfPoints(int X, int Y, int x1, int y1, int x2, int y2) {
-        double cos = (x1 - X) * (x2 - X) + (y1 - Y) * (y2 - Y) / Math.sqrt((Math.pow(x1 - X, 2) + Math.pow(y1 - Y, 2))*(Math.pow(x2 - X, 2) + Math.pow(y2 - Y, 2)));
-        return cos;
+    public double AngleOfPoints(int X, int Y, int x1, int y1, int x2, int y2) {
+        double cos = ((x1 - X) * (x2 - X) + (y1 - Y) * (y2 - Y))/ Math.sqrt((Math.pow(x1 - X, 2) + Math.pow(y1 - Y, 2))*(Math.pow(x2 - X, 2) + Math.pow(y2 - Y, 2)));
+        double angle = Math.toDegrees(Math.acos(cos));
+        return angle;
     }
 
     @Override
-    public void onPause()
-    {
+    public void onPause() {
         super.onPause();
         if (mOpenCvCameraView != null)
             mOpenCvCameraView.disableView();
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
         if (!OpenCVLoader.initDebug()) {
             Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
@@ -189,9 +189,13 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
             mOpenCvCameraView.disableView();
     }
 
-    public void onCameraViewStarted(int width, int height) {}
+    public void onCameraViewStarted(int width, int height) {
 
-    public void onCameraViewStopped() {}
+    }
+
+    public void onCameraViewStopped() {
+
+    }
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
         Mat rgbaMat = inputFrame.rgba();
@@ -204,7 +208,7 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         return rgbaMat;
     }
 
-    ArrayList<ArrayList<Integer>> rectPoint;
+    ArrayList<ArrayList<Integer>> conerPoint = new ArrayList<ArrayList<Integer>>();
 
     private void SearchRect(Mat inMat, Mat outMat) {
         Mat corMat = inMat.clone();
@@ -217,7 +221,7 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
 
         corMat.release();
 
-        rectPoint = new ArrayList<ArrayList<Integer>>();
+        conerPoint = new ArrayList<ArrayList<Integer>>();
         for (int i = 0; i < contours.size(); i++) {
 
             double contourArea = Imgproc.contourArea(contours.get(i));
@@ -239,16 +243,16 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
                         srcPoint.add((int)m[0]);
                         srcPoint.add((int)m[1]);
                     }
-                    rectPoint.add(srcPoint);
+                    conerPoint.add(srcPoint);
                 }
             }
         }
 
-        for (int i = 0; i < rectPoint.size(); i++) {
-            Point pt1 = new Point(rectPoint.get(i).get(0), rectPoint.get(i).get(1));
-            Point pt2 = new Point(rectPoint.get(i).get(2), rectPoint.get(i).get(3));
-            Point pt3 = new Point(rectPoint.get(i).get(4), rectPoint.get(i).get(5));
-            Point pt4 = new Point(rectPoint.get(i).get(6), rectPoint.get(i).get(7));
+        for (int i = 0; i < conerPoint.size(); i++) {
+            Point pt1 = new Point(conerPoint.get(i).get(0), conerPoint.get(i).get(1));
+            Point pt2 = new Point(conerPoint.get(i).get(2), conerPoint.get(i).get(3));
+            Point pt3 = new Point(conerPoint.get(i).get(4), conerPoint.get(i).get(5));
+            Point pt4 = new Point(conerPoint.get(i).get(6), conerPoint.get(i).get(7));
             Imgproc.line(outMat, pt1, pt2, new Scalar(255, 0, 0), 2);
             Imgproc.line(outMat, pt2, pt3, new Scalar(255, 0, 0), 2);
             Imgproc.line(outMat, pt3, pt4, new Scalar(255, 0, 0), 2);
