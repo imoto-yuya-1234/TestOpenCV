@@ -1,4 +1,4 @@
-#Wed Feb 01 23:12:22 JST 2017
+#Fri Feb 10 00:09:35 JST 2017
 base.0=/Users/yuya/work/AndroidStudioProjects/TestOpenCV/openCVSampleimagemanipulations/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_a18483d45767b9c92f72941758a127129e9173af
 renamed.1=classes2.dex
 renamed.0=classes.dex

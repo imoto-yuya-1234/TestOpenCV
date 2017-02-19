@@ -4,8 +4,8 @@
     android:layout_height="match_parent" >
 
     <org.opencv.android.JavaCameraView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:id="@+id/image_manipulations_activity_surface_view" />
 
 </LinearLayout>
