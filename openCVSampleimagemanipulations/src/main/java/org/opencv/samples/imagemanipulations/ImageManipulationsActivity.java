@@ -260,6 +260,7 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
         }
     }
 
+    // 検出した四角形を長方形に透視変換
     private void Square2Rect(Mat inMat, Mat outMat) {
         Mat corMat = inMat.clone();
         int width = corMat.width();
